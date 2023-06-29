@@ -4,6 +4,9 @@
   "description": "Polestar support for Homebridge: https://github.com/nfarina/homebridge",
   "author": "tabrindle@gmail.com",
   "license": "ISC",
+  "keywords": [
+    "homebridge-plugin"
+  ],
   "engines": {
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
