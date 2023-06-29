@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "Tesla",
+  "pluginAlias": "Polestar",
   "pluginType": "accessory",
   "schema": {
     "type": "object",

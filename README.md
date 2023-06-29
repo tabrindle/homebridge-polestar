@@ -12,12 +12,12 @@ After [installation](#installation) below, you'll get the default services enabl
 
 # Installation
 
-If you're running a Homebridge UI like [`homebridge-ui-config-x`](https://github.com/oznu/homebridge-config-ui-x) then you can use it to install `homebridge-tesla` and configure it there. All configuration options should be supported.
+If you're running a Homebridge UI like [`homebridge-ui-config-x`](https://github.com/oznu/homebridge-config-ui-x) then you can use it to install `homebridge-polestar` and configure it there. All configuration options should be supported.
 
 # Manual Installation
 
 ```sh
-npm install --global homebridge-tesla
+npm install --global homebridge-polestar
 ```
 
 Example config.json:
