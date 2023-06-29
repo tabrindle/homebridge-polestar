@@ -1,0 +1,33 @@
+{
+  "pluginAlias": "Tesla",
+  "pluginType": "accessory",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "name",
+        "type": "string",
+        "required": true,
+        "default": "PS2"
+      },
+      "prefix": {
+        "title": "Services Prefix",
+        "type": "string",
+        "default": "",
+        "description": "Prefix for all services. Useful if you have multiple vehicles. Example: 'Climate' becomes 'PS2 Climate'."
+      },
+      "vehicleLock": {
+        "title": "Car Doors",
+        "type": "boolean",
+        "default": true,
+        "description": "Example: 'Unlock the Car Doors'"
+      },
+      "climateSwitch": {
+        "title": "Climate Switch",
+        "type": "boolean",
+        "default": true,
+        "description": "If on will create a switch to turn on/off climate control"
+      }
+    }
+  }
+}

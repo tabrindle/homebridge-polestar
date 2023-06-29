@@ -1,0 +1,45 @@
+{
+  "name": "homebridge-polestar",
+  "version": "1.0.0",
+  "description": "Polestar support for Homebridge: https://github.com/nfarina/homebridge",
+  "author": "tabrindle@gmail.com",
+  "license": "ISC",
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tabrindle/homebridge-polestar.git"
+  },
+  "bugs": {
+    "url": "http://github.com/tabrindle/homebridge-polestar/issues"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "config.schema.json"
+  ],
+  "scripts": {
+    "dev": "rollup -c -w --bundleConfigAsCjs",
+    "build": "rollup -c --bundleConfigAsCjs",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.6",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-typescript": "^7.18.6",
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-json": "^5.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/node": "^20.3.2",
+    "homebridge": "^1.5.1",
+    "prettier": "^2.7.1",
+    "rollup": "^3.2.3",
+    "typescript": "^4.8.4"
+  }
+}
