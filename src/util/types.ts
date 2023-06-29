@@ -22,7 +22,13 @@ export enum CurrentClimateState {
   OFF = "OFF",
 }
 
+export enum CurrentChargingState {
+  CHARGING = "CHARGING",
+  NOT_CHARGING = "NOT_CHARGING",
+}
+
 export interface VehicleData {
+  currentChargingState: CurrentChargingState;
   currentClimateState: CurrentClimateState;
   currentLockState: CurrentLockState;
   currentChargeState: number; // percent

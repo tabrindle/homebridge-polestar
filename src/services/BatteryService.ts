@@ -1,5 +1,5 @@
 import { Service } from "homebridge";
-import { VehicleData } from "../util/types";
+import { VehicleData, CurrentChargingState } from "../util/types";
 import {
   PolestarPluginService,
   PolestarPluginServiceContext,
@@ -21,9 +21,9 @@ export class BatteryService extends PolestarPluginService {
       .getCharacteristic(hap.Characteristic.BatteryLevel)
       .on("get", this.createGetter(this.getLevel));
 
-    // const chargingState = service
-    //   .getCharacteristic(hap.Characteristic.ChargingState)
-    //   .on("get", this.createGetter(this.getChargingState));
+    const chargingState = service
+      .getCharacteristic(hap.Characteristic.ChargingState)
+      .on("get", this.createGetter(this.getChargingState));
 
     const lowBattery = service
       .getCharacteristic(hap.Characteristic.StatusLowBattery)
@@ -33,7 +33,7 @@ export class BatteryService extends PolestarPluginService {
 
     polestar.on("vehicleDataUpdated", (data) => {
       batteryLevel.updateValue(this.getLevel(data));
-      // chargingState.updateValue(this.getChargingState(data));
+      chargingState.updateValue(this.getChargingState(data));
       lowBattery.updateValue(this.getLowBattery(data));
     });
   }
@@ -42,17 +42,17 @@ export class BatteryService extends PolestarPluginService {
     return data ? data.currentChargeState : 50;
   }
 
-  // getChargingState(data: VehicleData | null): number {
-  //   const { hap } = this.context;
+  getChargingState(data: VehicleData | null): number {
+    const { hap } = this.context;
 
-  //   if (data) {
-  //     return data.chargingState === "Charging"
-  //       ? hap.Characteristic.ChargingState.CHARGING
-  //       : hap.Characteristic.ChargingState.NOT_CHARGING;
-  //   } else {
-  //     return hap.Characteristic.ChargingState.NOT_CHARGING;
-  //   }
-  // }
+    if (data) {
+      return data.currentChargingState === CurrentChargingState.CHARGING
+        ? hap.Characteristic.ChargingState.CHARGING
+        : hap.Characteristic.ChargingState.NOT_CHARGING;
+    } else {
+      return hap.Characteristic.ChargingState.NOT_CHARGING;
+    }
+  }
 
   getLowBattery(data: VehicleData | null): boolean {
     return data ? data.currentChargeState <= 20 : false;

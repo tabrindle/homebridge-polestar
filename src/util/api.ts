@@ -2,6 +2,7 @@ import { Logging } from "homebridge";
 import { EventEmitter } from "./events";
 import { lock } from "./mutex";
 import {
+  CurrentChargingState,
   CurrentClimateState,
   CurrentLockState,
   PolestarPluginConfig,
@@ -23,11 +24,11 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
   }
 
   public async getClimateState() {
-    console.log("getClimateState");
+    this.log("getClimateState");
     return Promise.resolve(CurrentClimateState.ACTIVE);
   }
   public async setClimateState(currentClimateState: CurrentClimateState) {
-    console.log("setClimateState", currentClimateState);
+    this.log("setClimateState", currentClimateState);
     if (currentClimateState === CurrentClimateState.ACTIVE) {
       return Promise.resolve(CurrentClimateState.ACTIVE);
     }
@@ -35,17 +36,22 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
   }
 
   public async getLockState() {
-    console.log("getLockState");
+    this.log("getLockState");
     return Promise.resolve(CurrentLockState.UNSECURED);
   }
   public async setLockState(currentLockState: CurrentLockState) {
-    console.log("setLockState", currentLockState);
+    this.log("setLockState", currentLockState);
     return Promise.resolve(CurrentLockState.SECURED);
   }
 
   public async getChargeState() {
-    console.log("getChargeState");
-    return Promise.resolve(30);
+    this.log("getChargeState");
+    return Promise.resolve(75);
+  }
+
+  public async getChargingState() {
+    this.log("getChargingState");
+    return Promise.resolve(CurrentChargingState.NOT_CHARGING);
   }
 
   public async getVehicleData(): Promise<any> {
@@ -66,6 +72,7 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
       }
 
       let data: VehicleData = {
+        currentChargingState: CurrentChargingState.NOT_CHARGING,
         currentClimateState: CurrentClimateState.OFF,
         currentLockState: CurrentLockState.UNKNOWN,
         currentChargeState: 50,

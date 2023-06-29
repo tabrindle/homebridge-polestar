@@ -1,3 +1,5 @@
+# *NOTE: THIS IS NOT FUNCTIONAL YET. CODE IS IN PROGRESS.*
+
 # Polestar Accessory
 
 Got a Polestar? Want to let Siri boss it around? Look no further.
