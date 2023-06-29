@@ -1,6 +1,6 @@
 {
   "name": "homebridge-polestar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Polestar support for Homebridge: https://github.com/nfarina/homebridge",
   "author": "tabrindle@gmail.com",
   "license": "ISC",
