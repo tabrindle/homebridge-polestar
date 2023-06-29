@@ -16,6 +16,18 @@
         "default": "",
         "description": "Prefix for all services. Useful if you have multiple vehicles. Example: 'Climate' becomes 'PS2 Climate'."
       },
+      "batteryAsLightbulb": {
+        "title": "Battery Switch",
+        "type": "boolean",
+        "default": true,
+        "description": "If on will create a lightbulb to show battery level"
+      },
+      "chargingStatusAsSwitch": {
+        "title": "Charging Switch",
+        "type": "boolean",
+        "default": true,
+        "description": "If on will create a switch to show charging state"
+      },
       "vehicleLock": {
         "title": "Car Doors",
         "type": "boolean",

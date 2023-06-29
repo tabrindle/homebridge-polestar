@@ -12,24 +12,22 @@ export class BatteryService extends PolestarPluginService {
     super(context);
     const { hap, polestar } = context;
 
-    const service = new hap.Service.Battery(
+    this.service = new hap.Service.Battery(
       this.serviceName("Battery"),
       "battery",
     );
 
-    const batteryLevel = service
+    const batteryLevel = this.service
       .getCharacteristic(hap.Characteristic.BatteryLevel)
       .on("get", this.createGetter(this.getLevel));
 
-    const chargingState = service
+    const chargingState = this.service
       .getCharacteristic(hap.Characteristic.ChargingState)
       .on("get", this.createGetter(this.getChargingState));
 
-    const lowBattery = service
+    const lowBattery = this.service
       .getCharacteristic(hap.Characteristic.StatusLowBattery)
       .on("get", this.createGetter(this.getLowBattery));
-
-    this.service = service;
 
     polestar.on("vehicleDataUpdated", (data) => {
       batteryLevel.updateValue(this.getLevel(data));
@@ -39,10 +37,12 @@ export class BatteryService extends PolestarPluginService {
   }
 
   getLevel(data: VehicleData | null): number {
+    this.context.log("BatteryService", "getLevel");
     return data ? data.currentChargeState : 50;
   }
 
   getChargingState(data: VehicleData | null): number {
+    this.context.log("BatteryService", "getChargingState");
     const { hap } = this.context;
 
     if (data) {
@@ -55,6 +55,7 @@ export class BatteryService extends PolestarPluginService {
   }
 
   getLowBattery(data: VehicleData | null): boolean {
+    this.context.log("BatteryService", "getLowBattery");
     return data ? data.currentChargeState <= 20 : false;
   }
 }

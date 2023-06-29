@@ -12,17 +12,12 @@ export class ClimateSwitchService extends PolestarPluginService {
     super(context);
     const { hap, polestar } = context;
 
-    const service = new hap.Service.Switch(
-      this.serviceName("Climate"),
-      "climate",
-    );
+    this.service = new hap.Service.Fan(this.serviceName("Climate"), "climate");
 
-    const on = service
+    const on = this.service
       .getCharacteristic(hap.Characteristic.On)
       .on("get", this.createGetter(this.getOn))
       .on("set", this.createSetter(this.setOn));
-
-    this.service = service;
 
     polestar.on("vehicleDataUpdated", (data) => {
       on.updateValue(this.getOn(data));
@@ -30,10 +25,12 @@ export class ClimateSwitchService extends PolestarPluginService {
   }
 
   getOn(data: VehicleData | null) {
+    this.context.log("ClimateSwitchService", "getOn");
     return data?.currentClimateState || "OFF";
   }
 
   async setOn(on: boolean) {
+    this.context.log("ClimateSwitchService", "setOn");
     const { log, polestar } = this.context;
 
     if (on) {

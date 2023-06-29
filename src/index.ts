@@ -2,6 +2,8 @@ require("@babel/polyfill");
 
 import { AccessoryConfig, API, HAP, Logging } from "homebridge";
 import { BatteryService } from "./services/BatteryService";
+import { BatteryLightbulbService } from "./services/BatteryLightbulbService";
+import { ChargingSwitchService } from "./services/ChargingSwitchService";
 import { ClimateSwitchService } from "./services/ClimateSwitchService";
 import {
   PolestarPluginService,
@@ -42,6 +44,14 @@ class PolestarAccessory {
     };
 
     this.services.push(new BatteryService(context));
+
+    if (getConfigValue(config, "batteryAsLightbulb")) {
+      this.services.push(new BatteryLightbulbService(context));
+    }
+
+    if (getConfigValue(config, "chargingStatusAsSwitch")) {
+      this.services.push(new ChargingSwitchService(context));
+    }
 
     if (getConfigValue(config, "vehicleLock")) {
       this.services.push(new VehicleLockService(context));

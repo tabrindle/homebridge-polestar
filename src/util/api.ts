@@ -41,12 +41,15 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
   }
   public async setLockState(currentLockState: CurrentLockState) {
     this.log("setLockState", currentLockState);
-    return Promise.resolve(CurrentLockState.SECURED);
+    if (currentLockState === CurrentLockState.UNSECURED) {
+      return Promise.resolve(CurrentLockState.SECURED);
+    }
+    return Promise.resolve(CurrentLockState.UNSECURED);
   }
 
   public async getChargeState() {
     this.log("getChargeState");
-    return Promise.resolve(75);
+    return Promise.resolve(15);
   }
 
   public async getChargingState() {

@@ -13,21 +13,19 @@ export class VehicleLockService extends PolestarPluginService {
     super(context);
     const { hap, polestar } = context;
 
-    const service = new hap.Service.LockMechanism(
+    this.service = new hap.Service.LockMechanism(
       this.serviceName("Car Doors"),
       "carDoors",
     );
 
-    const currentState = service
+    const currentState = this.service
       .getCharacteristic(hap.Characteristic.LockCurrentState)
       .on("get", this.createGetter(this.getCurrentState));
 
-    const targetState = service
+    const targetState = this.service
       .getCharacteristic(hap.Characteristic.LockTargetState)
       .on("get", this.createGetter(this.getTargetState))
       .on("set", this.createSetter(this.setTargetState));
-
-    this.service = service;
 
     polestar.on("vehicleDataUpdated", (data) => {
       currentState.updateValue(this.getCurrentState(data));
