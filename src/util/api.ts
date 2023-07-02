@@ -1,104 +1,83 @@
-import { Logging } from "homebridge";
-import { EventEmitter } from "./events";
-import { lock } from "./mutex";
-import {
-  CurrentChargingState,
-  CurrentClimateState,
-  CurrentLockState,
-  PolestarPluginConfig,
-  VehicleData,
-} from "./types";
+import { Logging } from "homebridge"
+import debouncePromise from "debounce-promise"
+import { EventEmitter } from "./events"
+import { ClimateStateEnum, LockStateEnum, VehicleData } from "./types"
+import { shell } from "./shell"
+import { wait } from "./wait"
 
 export interface PolestarApiEvents {
-  vehicleDataUpdated(data: VehicleData): void;
+  vehicleDataUpdated(data: VehicleData): void
 }
 
 export class PolestarApi extends EventEmitter<PolestarApiEvents> {
-  private log: Logging;
-  private lastVehicleData: VehicleData | null = null;
-  private lastVehicleDataTime = 0;
-
-  constructor(log: Logging, config: PolestarPluginConfig) {
-    super();
-    this.log = log;
+  private log: Logging
+  public getPolestarDataDebounced: () => Promise<VehicleData>
+  public commandRunning = false
+  public cachedPolestarData: VehicleData = {
+    batteryState: 100,
+    chargingState: "UNKNOWN",
+    climateState: "UNKNOWN",
+    lockState: "UNKNOWN",
+    plugState: "UNKNOWN",
   }
 
-  public async getClimateState() {
-    this.log("getClimateState");
-    return Promise.resolve(CurrentClimateState.ACTIVE);
+  constructor(log: Logging) {
+    super()
+    this.log = log
+    this.getPolestarDataDebounced = debouncePromise(() => {
+      this.log.info("getPolestarDataDebounced")
+      return this.getPolestarData()
+    }, 30000)
   }
-  public async setClimateState(currentClimateState: CurrentClimateState) {
-    this.log("setClimateState", currentClimateState);
-    if (currentClimateState === CurrentClimateState.ACTIVE) {
-      return Promise.resolve(CurrentClimateState.ACTIVE);
+
+  public async setClimateState(targetClimateState: ClimateStateEnum) {
+    this.log.info("setClimateState", "targetClimateState:", targetClimateState)
+    if (targetClimateState === ClimateStateEnum.ACTIVE) {
+      this.callScript("apply_climate_active.sh")
+    } else {
+      this.callScript("apply_climate_off.sh")
     }
-    return Promise.resolve(CurrentClimateState.OFF);
+    await wait(8000)
+    this.cachedPolestarData.climateState = targetClimateState
+    return Promise.resolve(targetClimateState)
   }
 
-  public async getLockState() {
-    this.log("getLockState");
-    return Promise.resolve(CurrentLockState.UNSECURED);
-  }
-  public async setLockState(currentLockState: CurrentLockState) {
-    this.log("setLockState", currentLockState);
-    if (currentLockState === CurrentLockState.UNSECURED) {
-      return Promise.resolve(CurrentLockState.SECURED);
+  public async setLockState(targetLockState: LockStateEnum) {
+    this.log.info("setLockState", "targetLockState:", targetLockState)
+    if (targetLockState === LockStateEnum.SECURED) {
+      this.callScript("apply_lock_secured.sh")
+    } else {
+      this.callScript("apply_lock_unsecured.sh")
     }
-    return Promise.resolve(CurrentLockState.UNSECURED);
+    await wait(8000)
+    this.cachedPolestarData.lockState = targetLockState
+    return Promise.resolve(targetLockState)
   }
 
-  public async getChargeState() {
-    this.log("getChargeState");
-    return Promise.resolve(15);
+  public async getPolestarData(): Promise<any> {
+    this.log.info("getPolestarData")
+    return this.callScript("get_state.sh")
   }
 
-  public async getChargingState() {
-    this.log("getChargingState");
-    return Promise.resolve(CurrentChargingState.NOT_CHARGING);
+  public async getCachedPolestarData(): Promise<VehicleData> {
+    this.log.debug("getCachedPolestarData")
+    this.getPolestarDataDebounced()
+    return this.cachedPolestarData
   }
 
-  public async getVehicleData(): Promise<any> {
-    // Use a mutex to prevent multiple calls happening in parallel.
-    const unlock = await lock("getVehicleData", 60 * 1000);
-
-    if (!unlock) {
-      this.log("Failed to acquire lock for getVehicleData");
-      return null;
-    }
-
+  public async callScript(script): Promise<VehicleData> {
+    this.commandRunning = true
     try {
-      // If the cached value is less than 5 minutes old, return it.
-      const cacheAge = Date.now() - this.lastVehicleDataTime;
-
-      if (cacheAge < 1000 * 60 * 5) {
-        return this.lastVehicleData;
-      }
-
-      let data: VehicleData = {
-        currentChargingState: CurrentChargingState.NOT_CHARGING,
-        currentClimateState: CurrentClimateState.OFF,
-        currentLockState: CurrentLockState.UNKNOWN,
-        currentChargeState: 50,
-      };
-
-      try {
-        data.currentClimateState = await this.getClimateState();
-        data.currentLockState = await this.getLockState();
-        data.currentChargeState = await this.getChargeState();
-      } catch (error: any) {
-        this.lastVehicleData = null;
-        this.lastVehicleDataTime = Date.now();
-        return null;
-      }
-
-      this.lastVehicleData = data;
-      this.lastVehicleDataTime = Date.now();
-
-      this.emit("vehicleDataUpdated", data);
-
-      return data;
-    } finally {
-      unlock();
+      const response = (await shell(`scripts/${script}`)) as string
+      const json = JSON.parse(response)
+      this.log.debug("response:", json)
+      this.emit("vehicleDataUpdated", json)
+      this.cachedPolestarData = json
+      this.commandRunning = false
+      return json
+    } catch (error: any) {
+      this.log.error("script error", error)
     }
+    return this.cachedPolestarData
   }
 }

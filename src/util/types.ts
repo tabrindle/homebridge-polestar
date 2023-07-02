@@ -1,35 +1,44 @@
-import { schema } from "../../config.schema.json";
+import { schema } from "../../config.schema.json"
 
 export type PolestarPluginConfig = {
-  [key in keyof typeof schema.properties]: (typeof schema.properties)[key]["default"];
-};
+  [key in keyof typeof schema.properties]: (typeof schema.properties)[key]["default"]
+}
 
 export function getConfigValue<T extends keyof PolestarPluginConfig>(
   config: PolestarPluginConfig,
   key: T,
 ): PolestarPluginConfig[T] {
-  return config[key] ?? schema.properties[key].default;
+  return config[key] ?? schema.properties[key].default
 }
 
-export enum CurrentLockState {
+export enum ChargingStateEnum {
+  CHARGING = "CHARGING",
+  NOT_CHARGING = "NOT_CHARGING",
+  UNKNOWN = "UNKNOWN",
+}
+
+export enum ClimateStateEnum {
+  ACTIVE = "ACTIVE",
+  OFF = "OFF",
+  UNKNOWN = "UNKNOWN",
+}
+
+export enum LockStateEnum {
   UNSECURED = "UNSECURED",
   SECURED = "SECURED",
   UNKNOWN = "UNKNOWN",
 }
 
-export enum CurrentClimateState {
-  ACTIVE = "ACTIVE",
-  OFF = "OFF",
-}
-
-export enum CurrentChargingState {
-  CHARGING = "CHARGING",
-  NOT_CHARGING = "NOT_CHARGING",
+export enum PlugStateEnum {
+  UNPLUGGED = "UNPLUGGED",
+  PLUGGEDIN = "PLUGGEDIN",
+  UNKNOWN = "UNKNOWN",
 }
 
 export interface VehicleData {
-  currentChargingState: CurrentChargingState;
-  currentClimateState: CurrentClimateState;
-  currentLockState: CurrentLockState;
-  currentChargeState: number; // percent
+  batteryState: number // percent
+  chargingState: keyof typeof ChargingStateEnum
+  climateState: keyof typeof ClimateStateEnum
+  lockState: keyof typeof LockStateEnum
+  plugState: keyof typeof PlugStateEnum
 }

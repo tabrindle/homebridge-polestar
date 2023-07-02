@@ -25,11 +25,15 @@
   ],
   "scripts": {
     "dev": "rollup -c -w --bundleConfigAsCjs",
-    "build": "rollup -c --bundleConfigAsCjs",
+    "build": "rollup -c --bundleConfigAsCjs && npm run copy",
+    "copy": "rm -rf ./dist/scripts && mkdir -p './dist/scripts' && cp ./scripts/*.sh ./dist/scripts/",
+    "format": "prettier --write 'src/**/*.ts'",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.4"
+    "@babel/polyfill": "^7.4.4",
+    "@rollup/plugin-commonjs": "^25.0.2",
+    "debounce-promise": "^3.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

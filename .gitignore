@@ -5,3 +5,5 @@ yarn.lock
 .DS_Store
 test.js
 test.py
+*.png
+*.xml

@@ -37,6 +37,10 @@ Example config.json:
 
 You can find the full list of configuration settings in [`config.schema.json`](config.schema.json).
 
+## Prerequisite Software Install
+- This package comes with a ./scripts/install.sh script that will (probably) install the necessary software. It should support apt/yum/homebrew, so Linux and MacOS. 
+- This script installs Tesseract (an OCR program) that takes an image and returns the text in the image, xmlstarlet, an xml parsing program that interprets the UI dump from the android phone, ADB (Android Debugging Bridge) to connect to the phone, and ImageMagick, an image manipulation program to help Tesseract work better. These are all required, and unfortunately not reliably automatically installable with npm (the pacakge manager that homebridge uses)
+- In order to make this work, you must have an android phone (presumably that you dont use for anything else) connnected through adb
 ## Setting up the Home App
 
 The plugin exposes a single HomeKit "Accessory" representing the car, which contains multiple services for all the different switches and locks. _This is the way._
