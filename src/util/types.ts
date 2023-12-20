@@ -17,18 +17,6 @@ export enum ChargingStateEnum {
   UNKNOWN = "UNKNOWN",
 }
 
-export enum ClimateStateEnum {
-  ACTIVE = "ACTIVE",
-  OFF = "OFF",
-  UNKNOWN = "UNKNOWN",
-}
-
-export enum LockStateEnum {
-  UNSECURED = "UNSECURED",
-  SECURED = "SECURED",
-  UNKNOWN = "UNKNOWN",
-}
-
 export enum PlugStateEnum {
   UNPLUGGED = "UNPLUGGED",
   PLUGGEDIN = "PLUGGEDIN",
@@ -38,7 +26,5 @@ export enum PlugStateEnum {
 export interface VehicleData {
   batteryState: number // percent
   chargingState: keyof typeof ChargingStateEnum
-  climateState: keyof typeof ClimateStateEnum
-  lockState: keyof typeof LockStateEnum
   plugState: keyof typeof PlugStateEnum
 }

@@ -1,9 +1,8 @@
+import fetch from "node-fetch"
 import { Logging } from "homebridge"
 import debouncePromise from "debounce-promise"
 import { EventEmitter } from "./events"
-import { ClimateStateEnum, LockStateEnum, VehicleData } from "./types"
-import { shell } from "./shell"
-import { wait } from "./wait"
+import { PolestarPluginConfig, VehicleData, getConfigValue } from "./types"
 
 export interface PolestarApiEvents {
   vehicleDataUpdated(data: VehicleData): void
@@ -16,47 +15,25 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
   public cachedPolestarData: VehicleData = {
     batteryState: 100,
     chargingState: "UNKNOWN",
-    climateState: "UNKNOWN",
-    lockState: "UNKNOWN",
     plugState: "UNKNOWN",
   }
+  public vin: string
+  public token: string
 
-  constructor(log: Logging) {
+  constructor(log: Logging, config: PolestarPluginConfig) {
     super()
     this.log = log
+    this.vin = getConfigValue(config, "vin")
+    this.token = getConfigValue(config, "token")
     this.getPolestarDataDebounced = debouncePromise(() => {
       this.log.info("getPolestarDataDebounced")
       return this.getPolestarData()
     }, 30000)
   }
 
-  public async setClimateState(targetClimateState: ClimateStateEnum) {
-    this.log.info("setClimateState", "targetClimateState:", targetClimateState)
-    if (targetClimateState === ClimateStateEnum.ACTIVE) {
-      this.callScript("apply_climate_active.sh")
-    } else {
-      this.callScript("apply_climate_off.sh")
-    }
-    await wait(8000)
-    this.cachedPolestarData.climateState = targetClimateState
-    return Promise.resolve(targetClimateState)
-  }
-
-  public async setLockState(targetLockState: LockStateEnum) {
-    this.log.info("setLockState", "targetLockState:", targetLockState)
-    if (targetLockState === LockStateEnum.SECURED) {
-      this.callScript("apply_lock_secured.sh")
-    } else {
-      this.callScript("apply_lock_unsecured.sh")
-    }
-    await wait(8000)
-    this.cachedPolestarData.lockState = targetLockState
-    return Promise.resolve(targetLockState)
-  }
-
   public async getPolestarData(): Promise<any> {
     this.log.info("getPolestarData")
-    return this.callScript("get_state.sh")
+    return this.callApi()
   }
 
   public async getCachedPolestarData(): Promise<VehicleData> {
@@ -65,18 +42,36 @@ export class PolestarApi extends EventEmitter<PolestarApiEvents> {
     return this.cachedPolestarData
   }
 
-  public async callScript(script): Promise<VehicleData> {
-    this.commandRunning = true
+  public async callApi(): Promise<VehicleData> {
     try {
-      const response = (await shell(`scripts/${script}`)) as string
-      const json = JSON.parse(response)
+      const response = await fetch("https://pc-api.polestar.com/eu-north-1/my-star", {
+        headers: {
+          accept: "*/*",
+          authorization: this.token,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+            query {
+              getBatteryData(vin:"${this.vin}") {
+                batteryChargeLevelPercentage
+                chargingStatus
+                chargerConnectionStatus
+                estimatedChargingTimeToFullMinutes
+                estimatedDistanceToEmptyMiles
+              }
+            }
+          `,
+        }),
+        method: "POST",
+      })
+      const json = response.json() as unknown as VehicleData
       this.log.debug("response:", json)
       this.emit("vehicleDataUpdated", json)
       this.cachedPolestarData = json
-      this.commandRunning = false
       return json
     } catch (error: any) {
-      this.log.error("script error", error)
+      this.log.error("fetch error", error)
     }
     return this.cachedPolestarData
   }

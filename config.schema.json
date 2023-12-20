@@ -4,6 +4,18 @@
   "schema": {
     "type": "object",
     "properties": {
+      "vin": {
+        "title": "vin",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "token": {
+        "title": "token",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
       "name": {
         "title": "name",
         "type": "string",
@@ -27,18 +39,6 @@
         "type": "boolean",
         "default": true,
         "description": "If on will create a switch to show plug state"
-      },
-      "vehicleLock": {
-        "title": "Car Doors",
-        "type": "boolean",
-        "default": true,
-        "description": "Example: 'Unlock the Car Doors'"
-      },
-      "climateSwitch": {
-        "title": "Climate Switch",
-        "type": "boolean",
-        "default": true,
-        "description": "If on will create a switch to turn on/off climate control"
       }
     }
   }
